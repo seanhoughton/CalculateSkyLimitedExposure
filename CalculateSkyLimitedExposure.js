@@ -13,7 +13,7 @@
 #feature-icon  CalculateSkyLimitedExposure.xpm
 
 #define TITLE CalculateSkyLimitedExposure
-#define VERSION 0.2
+#define VERSION 1.0
 
 // Sources:
 // Canon camera stats: http://www.astrosurf.com/buil/50d/test.htm
@@ -811,7 +811,7 @@ function CalculateSkyLimitedExposureDialog()
 CalculateSkyLimitedExposureDialog.prototype = new Dialog;
 
 var dialog = new CalculateSkyLimitedExposureDialog;
-//console.hide();
+console.hide();
 dialog.execute();
 
 
