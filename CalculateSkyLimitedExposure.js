@@ -268,16 +268,21 @@ function CalculateSkyLimitedExposureDialog()
              "<i>Note: Fields turn red as a warning that it contains an invalid value.</i>";
    }
 
+   // Lengths in pixels of the longest labels, for visual alignment (+ T for security).
+   var labelWidth1 = this.font.width( "Noise contribution (%):" + 'T' );
+   var labelWidth2 = this.font.width( "Suggested subexposure:" + 'T' );
+
+   // Fixed length in pixels for all numeric edit controls, for visual alignment.
+   var editWidth1 = this.font.width( "00000000" );
 
    /////////////////
    // CAMERA DATA //
    /////////////////
 
-
    // Preset list
    //
-   var cameraPresetList = new ComboBox(this);
-   with(cameraPresetList)
+   this.cameraPresetList = new ComboBox(this);
+   with(this.cameraPresetList)
    {
       for(var i=0; i < cameraPresets.length; ++i)
       {
@@ -297,22 +302,15 @@ function CalculateSkyLimitedExposureDialog()
 
    // Max Count
    //
-   var bitsPerChannelLabel = new Label(this);
-   with(bitsPerChannelLabel)
-   {
-      minWidth = 125;
-      textAlignment = TextAlign_Right|TextAlign_VertCenter;
-      text = "ADU Bits:";
-   }
-
    this.bitsPerChannelValue = new NumericControl(this);
    with(this.bitsPerChannelValue)
    {
-      label.textAlignment = TextAlign_Right|TextAlign_VertCenter;
+      label.text = "ADU Bits:";
+      label.minWidth = labelWidth1;
       toolTip = "<p>The number of bits per pixel</p>";
       setRange(0,32);
       setPrecision(0);
-      edit.minWidth = 100;
+      edit.setFixedWidth( editWidth1 ); // ### Note: Do this after setRange() and setPrecision()
 
       onValueUpdated = function( value )
       {
@@ -321,35 +319,17 @@ function CalculateSkyLimitedExposureDialog()
       };
    }
 
-   var bitsPerChannelSizer = new HorizontalSizer( this );
-   with(bitsPerChannelSizer)
-   {
-      spacing = 4;
-      margin = 5;
-      add(bitsPerChannelLabel);
-      add(this.bitsPerChannelValue);
-      addStretch();
-   }
-
    // Gain
    //
-   var gainLabel = new Label(this);
-   with(gainLabel)
-   {
-      minWidth = 125;
-      textAlignment = TextAlign_Right|TextAlign_VertCenter;
-      text = "Gain (e-/ADU):";
-   }
-
    this.gainValue = new NumericControl(this);
    with(this.gainValue)
    {
-      label.textAlignment = TextAlign_Right|TextAlign_VertCenter;
+      label.text = "Gain (e-/ADU):";
+      label.minWidth = labelWidth1;
       toolTip = "<p>The gain (e-/ADU) for your camera</p>";
       setRange(0,30);
       setPrecision(2);
-      edit.minWidth = 100;
-
+      edit.setFixedWidth( editWidth1 );
 
       onValueUpdated = function( value )
       {
@@ -358,35 +338,17 @@ function CalculateSkyLimitedExposureDialog()
       };
    }
 
-   var gainSizer = new HorizontalSizer( this );
-   with(gainSizer)
-   {
-      spacing = 4;
-      margin = 5;
-      add(gainLabel);
-      add(this.gainValue);
-      addStretch();
-   }
-
    // Readout noise
    //
-   var readoutNoiseLabel = new Label( this );
-   with(readoutNoiseLabel)
-   {
-      minWidth = 125;
-      textAlignment = TextAlign_Right|TextAlign_VertCenter;
-      text = "Readout Noise (e-):";
-      textAlignment = TextAlign_Right|TextAlign_VertCenter;
-   }
-
    this.readoutNoiseValue = new NumericControl(this);
    with(this.readoutNoiseValue)
    {
-      label.textAlignment = TextAlign_Right|TextAlign_VertCenter;
+      label.text = "Readout Noise (e-):";
+      label.minWidth = labelWidth1;
       toolTip = "<p>The documented readout noise (in e-) for your camera.  Consult the manufacturer for this value.</p>";
       setRange(0,100);
       setPrecision(2);
-      edit.minWidth = 100;
+      edit.setFixedWidth( editWidth1 );
 
       onValueUpdated = function( value )
       {
@@ -395,25 +357,15 @@ function CalculateSkyLimitedExposureDialog()
       };
    }
 
-   var readoutNoiseSizer = new HorizontalSizer( this );
-   with(readoutNoiseSizer)
-   {
-      spacing = 4;
-      margin = 10;
-      add(readoutNoiseLabel);
-      add(this.readoutNoiseValue);
-      addStretch();
-   }
-
    var cameraPropertiesSizer = new VerticalSizer(this);
    with(cameraPropertiesSizer)
    {
       spacing = 4;
-      margin = 10;
-      add(cameraPresetList);
-      add(bitsPerChannelSizer);
-      add(gainSizer);
-      add(readoutNoiseSizer);
+      margin = 8;
+      add(this.cameraPresetList);
+      add(this.bitsPerChannelValue);
+      add(this.gainValue);
+      add(this.readoutNoiseValue);
    }
 
    var cameraPropertiesGroup = new GroupBox(this);
@@ -428,11 +380,11 @@ function CalculateSkyLimitedExposureDialog()
    // Image Properties //
    //////////////////////
 
-   var lightImageList = new ViewList( this );
-   with ( lightImageList )
+   this.lightImageList = new ViewList( this );
+   with ( this.lightImageList )
    {
       getAll();
-      toolTip = "Select the image to sample for background level";
+      toolTip = "<p>Select the image to sample for background level</p>";
 
       onViewSelected = function( view )
       {
@@ -441,32 +393,26 @@ function CalculateSkyLimitedExposureDialog()
       };
    }
 
+   /*
    var lightImageSizer = new HorizontalSizer;
    with(lightImageSizer)
    {
       margin = 4;
-      spacing = 10;
+      spacing = 8;
       //add(this.lightImageLabel);
       add(lightImageList);
    }
-
-   var exposureLabel = new Label(this);
-   with(exposureLabel)
-   {
-      minWidth = 80;
-      textAlignment = TextAlign_Right|TextAlign_VertCenter;
-      text = "Exposure (s):";
-   }
+   */
 
    this.exposureValue = new NumericControl(this);
    with(this.exposureValue)
    {
-      label.textAlignment = TextAlign_Right|TextAlign_VertCenter;
+      label.text = "Exposure (s):";
+      label.minWidth = labelWidth1;
       toolTip = "<p>The exposure in seconds</p>";
       setRange(0,900);
       setPrecision(0);
-      edit.minWidth = 60;
-
+      edit.setFixedWidth( editWidth1 );
 
       onValueUpdated = function( value )
       {
@@ -475,32 +421,15 @@ function CalculateSkyLimitedExposureDialog()
       };
    }
 
-   var exposureSizer = new HorizontalSizer( this );
-   with(exposureSizer)
-   {
-      spacing = 4;
-      margin = 5;
-      add(exposureLabel);
-      add(this.exposureValue);
-      addStretch();
-   }
-
-   var pedestalLabel = new Label(this);
-   with(pedestalLabel)
-   {
-      minWidth = 80;
-      textAlignment = TextAlign_Right|TextAlign_VertCenter;
-      text = "Pedestal:";
-   }
-
    this.pedestalValue = new NumericControl(this);
    with(this.pedestalValue)
    {
-      label.textAlignment = TextAlign_Right|TextAlign_VertCenter;
+      label.text = "Pedestal:";
+      label.minWidth = labelWidth1;
       toolTip = "<p>The pedestal added to the values in the image</p>";
       setRange(-300,300);
       setPrecision(0);
-      edit.minWidth = 60;
+      edit.setFixedWidth( editWidth1 );
 
       onValueUpdated = function( value )
       {
@@ -509,32 +438,15 @@ function CalculateSkyLimitedExposureDialog()
       };
    }
 
-   var pedestalSizer = new HorizontalSizer( this );
-   with(pedestalSizer)
-   {
-      spacing = 4;
-      margin = 5;
-      add(pedestalLabel);
-      add(this.pedestalValue);
-      addStretch();
-   }
-
-   var binningLabel = new Label(this);
-   with(binningLabel)
-   {
-      minWidth = 80;
-      textAlignment = TextAlign_Right|TextAlign_VertCenter;
-      text = "Binning:";
-   }
-
    this.binningValue = new NumericControl(this);
    with(this.binningValue)
    {
-      label.textAlignment = TextAlign_Right|TextAlign_VertCenter;
+      label.text = "Binning:";
+      label.minWidth = labelWidth1;
       toolTip = "<p>The binning factor, use a value of '1' for no binning.</p>";
       setRange(1,4);
       setPrecision(0);
-      edit.minWidth = 60;
+      edit.setFixedWidth( editWidth1 );
 
       onValueUpdated = function( value )
       {
@@ -543,25 +455,15 @@ function CalculateSkyLimitedExposureDialog()
       };
    }
 
-   var binningSizer = new HorizontalSizer( this );
-   with(binningSizer)
-   {
-      spacing = 4;
-      margin = 5;
-      add(binningLabel);
-      add(this.binningValue);
-      addStretch();
-   }
-
    var imagePropertiesSizer = new VerticalSizer(this);
    with(imagePropertiesSizer)
    {
       spacing = 4;
-      margin = 5;
-      add(lightImageSizer);
-      add(exposureSizer);
-      add(pedestalSizer);
-      add(binningSizer);
+      margin = 8;
+      add(this.lightImageList);
+      add(this.exposureValue);
+      add(this.pedestalValue);
+      add(this.binningValue);
    }
 
    var imagePropertiesGroup = new GroupBox(this);
@@ -578,22 +480,15 @@ function CalculateSkyLimitedExposureDialog()
 
    // Acceptable noise contribution
    //
-   var readoutNoisePctLabel = new Label( this );
-   with(readoutNoisePctLabel)
-   {
-      minWidth = 100;
-      textAlignment = TextAlign_Right|TextAlign_VertCenter;
-      text = "Noise contribution (%)";
-   }
-
    this.readoutNoisePctValue = new NumericControl(this);
    with(this.readoutNoisePctValue)
    {
+      label.text = "Noise contribution (%):";
+      label.minWidth = labelWidth1;
       toolTip = "<p>The acceptable constribution of readout noise.  The suggested value is 5%.</p>";
       setRange(0,100);
       setPrecision(0);
-
-      label.textAlignment = TextAlign_Right|TextAlign_VertCenter;
+      edit.setFixedWidth( editWidth1 );
 
       onValueUpdated = function( value )
       {
@@ -602,22 +497,12 @@ function CalculateSkyLimitedExposureDialog()
       };
    }
 
-   var readoutNoisePctSizer = new HorizontalSizer( this );
-   with(readoutNoisePctSizer)
-   {
-      spacing = 4;
-      margin = 10;
-      add(readoutNoisePctLabel);
-      add(this.readoutNoisePctValue);
-      addStretch();
-   }
-
    var optionSizer = new VerticalSizer(this);
    with(optionSizer)
    {
       spacing = 4;
-      margin = 10;
-      add(readoutNoisePctSizer);
+      margin = 8;
+      add(this.readoutNoisePctValue);
    }
 
    var optionGroup = new GroupBox( this );
@@ -631,14 +516,13 @@ function CalculateSkyLimitedExposureDialog()
    // Results //
    /////////////
 
-
    // Flux value
    //
 
    var backgroundFluxLabel = new Label( this );
    with(backgroundFluxLabel)
    {
-      minWidth = 140;
+      minWidth = labelWidth2;
       textAlignment = TextAlign_Right|TextAlign_VertCenter;
       text = "Background flux:";
    }
@@ -647,16 +531,15 @@ function CalculateSkyLimitedExposureDialog()
    with(this.backgroundFluxValue)
    {
       foregroundColor = 0xff0000ff;
+      textAlignment = TextAlign_Left|TextAlign_VertCenter;
    }
 
    var backgroundFluxSizer = new HorizontalSizer( this );
    with(backgroundFluxSizer)
    {
       spacing = 4;
-      margin = 10;
       add(backgroundFluxLabel);
-      add(this.backgroundFluxValue);
-      addStretch();
+      add(this.backgroundFluxValue, 100);
    }
 
    // Limit value
@@ -664,7 +547,7 @@ function CalculateSkyLimitedExposureDialog()
    var limitedExposureLabel = new Label( this );
    with(limitedExposureLabel)
    {
-      minWidth = 140;
+      minWidth = labelWidth2;
       textAlignment = TextAlign_Right|TextAlign_VertCenter;
       text = "Sky limited exposure:";
    }
@@ -673,25 +556,23 @@ function CalculateSkyLimitedExposureDialog()
    with(this.limitedExposureValue)
    {
       foregroundColor = 0xff0000ff;
+      textAlignment = TextAlign_Left|TextAlign_VertCenter;
    }
 
    var limitedExposureSizer = new HorizontalSizer( this );
    with(limitedExposureSizer)
    {
       spacing = 4;
-      margin = 10;
       add(limitedExposureLabel);
-      add(this.limitedExposureValue);
-      addStretch();
+      add(this.limitedExposureValue, 100);
    }
-
 
    // Exposure value
    //
    var suggestedSubexposureLabel = new Label( this );
    with(suggestedSubexposureLabel)
    {
-      minWidth = 140;
+      minWidth = labelWidth2;
       textAlignment = TextAlign_Right|TextAlign_VertCenter;
       text = "Suggested subexposure:";
    }
@@ -700,23 +581,22 @@ function CalculateSkyLimitedExposureDialog()
    with(this.suggestedSubexposureValue)
    {
       foregroundColor = 0xff0000ff;
+      textAlignment = TextAlign_Left|TextAlign_VertCenter;
    }
 
    var suggestedSubexposureSizer = new HorizontalSizer( this );
    with(suggestedSubexposureSizer)
    {
       spacing = 4;
-      margin = 10;
       add(suggestedSubexposureLabel);
-      add(this.suggestedSubexposureValue);
-      addStretch();
+      add(this.suggestedSubexposureValue, 100);
    }
 
    var resultsSizer = new VerticalSizer(this);
    with(resultsSizer)
    {
       spacing = 4;
-      margin = 10;
+      margin = 8;
       add(backgroundFluxSizer);
       add(limitedExposureSizer);
       add(suggestedSubexposureSizer);
@@ -728,7 +608,6 @@ function CalculateSkyLimitedExposureDialog()
       title = "Results";
       sizer = resultsSizer;
    }
-
 
    // Calculate button
    //
@@ -755,8 +634,8 @@ function CalculateSkyLimitedExposureDialog()
    this.sizer = new VerticalSizer;
    with(this.sizer)
    {
-      margin = 10;
       spacing = 4;
+      margin = 8;
       add(helpLabel);
       add(cameraPropertiesGroup);
       add(imagePropertiesGroup);
@@ -766,6 +645,7 @@ function CalculateSkyLimitedExposureDialog()
    }
 
    this.windowTitle = #TITLE + " Script";
+   this.setFixedWidth( 420 );
    this.adjustToContents();
    //this.setFixedSize(); // the dialog does not always open to the right size on small screens
 
