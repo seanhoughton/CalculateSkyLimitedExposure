@@ -193,9 +193,14 @@ function CalculateOptimalExposureEngine()
    // from http://starizona.com/acb/ccd/advtheoryexp.aspx
    this.calculateSkyLimitedExposure = function()
    {
+      //console.writeln("Background ADU: " + this.ccd.normToAdu(this.backgroundImageData.median));
+      //console.writeln("Background Flux:" + this.backgroundFluxE);
+      //console.writeln("RO Noise:       " + this.ccd.readnoise);
+
       var pct = this.readoutNoisePct / 100.0;
       var effectiveReadoutNoiseE = this.ccd.readnoise / this.backgroundImageData.binning;
-      return (effectiveReadoutNoiseE*effectiveReadoutNoiseE) / ((((1.0+pct)*(1.0+pct))-1.0) * this.backgroundFluxE);
+      var k = 1.0 / (((1.0+pct)*(1.0+pct)) - 1.0);
+      return k * (effectiveReadoutNoiseE*effectiveReadoutNoiseE) / this.backgroundFluxE;
    }
 
    // http://www.cloudynights.com/item.php?item_id=1622
@@ -203,22 +208,22 @@ function CalculateOptimalExposureEngine()
    {
       // LP noise = LPsignal^0.5
       var lpNoiseE = Math.sqrt(this.backgroundFluxE);
-      console.writeln("LP Noise e-/s:    " + lpNoiseE);
+      //console.writeln("LP Noise e-/s:    " + lpNoiseE);
 
       var dcNoiseE = this.ccd.darkCurrentNoise;
-      console.writeln("DC Noise e-s:     " + dcNoiseE);
+      //console.writeln("DC Noise e-s:     " + dcNoiseE);
 
-//      var ccdNoiseE = this.ccd.totalNoiseE(1);
-//      console.writeln("CCD Noise e-/s:   " + ccdNoiseE);
+      //var ccdNoiseE = this.ccd.totalNoiseE(1);
+      //console.writeln("CCD Noise e-/s:   " + ccdNoiseE);
 
       var totalNoiseE = Math.sqrt(Math.pow(lpNoiseE,2) + Math.pow(dcNoiseE,2));
-      console.writeln("Total Noise e-/s: " + totalNoiseE);
+      //console.writeln("Total Noise e-/s: " + totalNoiseE);
 
       var minimumTargetE = this.ccd.aduToE(this.minimumTargetAdu);
-      console.writeln("Min e-:         " + minimumTargetE);
+      //console.writeln("Min e-:         " + minimumTargetE);
 
       var result = minimumTargetE * Math.sqrt(this.totalExposure) / (2 * totalNoiseE);
-      console.writeln("Exposure:    " + result);
+      //console.writeln("Exposure:    " + result);
 
       return result;
    }
@@ -337,13 +342,12 @@ function CalculateSkyLimitedExposureDialog()
       margin = 4;
       wordWrapping = true;
       useRichText = true;
-      text = "<p><b>" + #TITLE + " v" + #VERSION + "</b>" +
-             " &mdash; " +
-             "This script calculates the exposure at which sky noise overwhelms readout noise in an image. " +
-             "The provided test image should be dark subtracted but not flat fielded and contain a significant portion of background sky. " +
-             "The suggested exposure will change with each combination of location, camera, telescope, focal reducer, and filter.  For more information " +
-             "please read <a href='http://www.hiddenloft.com/notes/SubExposures.pdf'>this paper.</a></p>" +
-             "<i>Note: Fields turn red as a warning that it contains an invalid value.</i>";
+      text = "<p><b>Readout noise exposure</b> - This is the subexposure length at which the background sky noise " +
+             "overwhelms the CCD's readout noise.</p>" +
+             "<p><b>Anstey noise exposure</b> - This is the subexposure length at which the target's signal level is " +
+             "sufficiently above the '0' ADU value and will not be destroyed by quantization error.</p>" +
+             "<p><b>Usage</b> - Select your camera and provide both a background image and a target image.  In most cases simply using two " +
+             "preview frames, one containing only background and the other containing only the target, will be sufficient.</p>";
    }
 
    // Lengths in pixels of the longest labels, for visual alignment (+ T for security).
@@ -784,7 +788,7 @@ function CalculateSkyLimitedExposureDialog()
    {
       minWidth = labelWidth2;
       textAlignment = TextAlign_Right|TextAlign_VertCenter;
-      text = "Sky limited exposure:";
+      text = "Read noise exposure:";
    }
 
    this.limitedExposureValue = new Label( this );
@@ -809,7 +813,7 @@ function CalculateSkyLimitedExposureDialog()
    {
       minWidth = labelWidth2;
       textAlignment = TextAlign_Right|TextAlign_VertCenter;
-      text = "Anstey subexposure:";
+      text = "Anstey exposure:";
    }
 
    this.ansteySubexposureValue = new Label( this );
@@ -935,7 +939,7 @@ function CalculateSkyLimitedExposureDialog()
 CalculateSkyLimitedExposureDialog.prototype = new Dialog;
 
 var dialog = new CalculateSkyLimitedExposureDialog;
-//console.hide();
+console.hide();
 dialog.execute();
 
 
