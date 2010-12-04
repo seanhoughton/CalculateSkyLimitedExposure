@@ -19,6 +19,10 @@
 // Canon camera stats: http://www.astrosurf.com/buil/50d/test.htm
 // Astro camera stats: http://starizona.com/acb/ccd/advtheoryexp.aspx
 
+function debugPrint(text)
+{
+   console.writeln(text);
+}
 
 function delquote(str)
 {
@@ -133,7 +137,6 @@ function CalculateOptimalExposureEngine()
 
    this.totalExposure = 3600;
    this.backgroundFluxE = 0;
-   this.targetFlux = 0;
 
    // RO noise model limit model
    //
@@ -148,15 +151,11 @@ function CalculateOptimalExposureEngine()
 
    this.ccd = new CCD('', 0, 0, 0, 0);
    this.backgroundImageData = new ImageData();
-   this.targetImageData = new ImageData();
 
    this.generate = function()
    {
       var backgroundE = this.backgroundImageData.getFluxE(this.ccd);
       this.backgroundFluxE = backgroundE / (this.backgroundImageData.exposure);
-
-      var targetE = this.targetImageData.getFluxE(this.ccd);
-      this.targetFlux = targetE / (this.targetImageData.exposure);
 
       this.skyLimitedExposure = this.calculateSkyLimitedExposure();
 
@@ -187,43 +186,60 @@ function CalculateOptimalExposureEngine()
 
    this.targetFluxString = function()
    {
-      return this.fluxString(this.targetFlux);
+      return this.fluxString(this.targetFluxE);
    }
 
    // from http://starizona.com/acb/ccd/advtheoryexp.aspx
    this.calculateSkyLimitedExposure = function()
    {
-      //console.writeln("Background ADU: " + this.ccd.normToAdu(this.backgroundImageData.median));
-      //console.writeln("Background Flux:" + this.backgroundFluxE);
-      //console.writeln("RO Noise:       " + this.ccd.readnoise);
+      debugPrint("");
+      debugPrint("---------------------------------------");
+      debugPrint("Read noise limited exposure calculation");
+      debugPrint("---------------------------------------");
+      debugPrint("Background ADU: " + this.ccd.normToAdu(this.backgroundImageData.median) + " ADU");
+      debugPrint("Background Flux:" + this.backgroundFluxE + " e-");
+      debugPrint("RO Noise:       " + this.ccd.readnoise + " e-");
+      debugPrint("");
 
+      debugPrint("t = (Ron*Ron) / (((1+p)^2-1) * Esky)");
       var pct = this.readoutNoisePct / 100.0;
       var effectiveReadoutNoiseE = this.ccd.readnoise / this.backgroundImageData.binning;
+
+      debugPrint("t = (" + effectiveReadoutNoiseE + " * " + effectiveReadoutNoiseE + ") / " + "(((1+" + pct + ")^2-1) * " + this.backgroundFluxE + ")");
+
       var k = 1.0 / (((1.0+pct)*(1.0+pct)) - 1.0);
-      return k * (effectiveReadoutNoiseE*effectiveReadoutNoiseE) / this.backgroundFluxE;
+      var result = k * (effectiveReadoutNoiseE*effectiveReadoutNoiseE) / this.backgroundFluxE;
+
+      debugPrint("t = " + result);
+      debugPrint("");
+
+      return result;
    }
 
    // http://www.cloudynights.com/item.php?item_id=1622
    this.calculateAnsteyLimitedExposure = function()
    {
+      debugPrint("");
+      debugPrint("-----------------------------------");
+      debugPrint("Anstey limited exposure calculation");
+      debugPrint("-----------------------------------");
+
       // LP noise = LPsignal^0.5
       var lpNoiseE = Math.sqrt(this.backgroundFluxE);
-      //console.writeln("LP Noise e-/s:    " + lpNoiseE);
+      debugPrint("LP Noise:    " + lpNoiseE + " e-/s");
 
-      var dcNoiseE = this.ccd.darkCurrentNoise;
-      //console.writeln("DC Noise e-s:     " + dcNoiseE);
+      var ccdNoiseE = this.ccd.totalNoiseE(this.totalExposure);
+      debugPrint("CCD Noise:   " + ccdNoiseE + " e-/s");
 
-      //var ccdNoiseE = this.ccd.totalNoiseE(1);
-      //console.writeln("CCD Noise e-/s:   " + ccdNoiseE);
-
-      var totalNoiseE = Math.sqrt(Math.pow(lpNoiseE,2) + Math.pow(dcNoiseE,2));
-      //console.writeln("Total Noise e-/s: " + totalNoiseE);
+      var totalNoiseE = Math.sqrt(Math.pow(lpNoiseE,2) + Math.pow(ccdNoiseE,2));
+      debugPrint("Total Noise: " + totalNoiseE + " e-/s");
 
       var minimumTargetE = this.ccd.aduToE(this.minimumTargetAdu);
-      //console.writeln("Min e-:         " + minimumTargetE);
+      debugPrint("Lamda:       " + minimumTargetE + " e-");
 
       var result = minimumTargetE * Math.sqrt(this.totalExposure) / (2 * totalNoiseE);
-      //console.writeln("Exposure:    " + result);
+      debugPrint("Exposure:    " + result + " s");
+      debugPrint("");
 
       return result;
    }
@@ -345,9 +361,8 @@ function CalculateSkyLimitedExposureDialog()
       text = "<p><b>Readout noise exposure</b> - This is the subexposure length at which the background sky noise " +
              "overwhelms the CCD's readout noise.</p>" +
              "<p><b>Anstey noise exposure</b> - This is the subexposure length at which the target's signal level is " +
-             "sufficiently above the '0' ADU value and will not be destroyed by quantization error.</p>" +
-             "<p><b>Usage</b> - Select your camera and provide both a background image and a target image.  In most cases simply using two " +
-             "preview frames, one containing only background and the other containing only the target, will be sufficient.</p>";
+             "sufficiently above the '0' ADU value that the normal distribution created by the noise will not be truncated.</p>" +
+             "<p><b>Usage</b> - Select your camera and provide a background image.  In most cases simply using a preview frame containing only background will be sufficient.</p>";
    }
 
    // Lengths in pixels of the longest labels, for visual alignment (+ T for security).
@@ -566,93 +581,6 @@ function CalculateSkyLimitedExposureDialog()
    }
 
 
-   ///////////////////////////
-   // Target Properties //
-   ///////////////////////////
-
-   this.targetImageList = new ViewList( this );
-   with ( this.targetImageList )
-   {
-      getAll();
-      toolTip = "<p>Select the image to sample for target level</p>";
-
-      onViewSelected = function( view )
-      {
-         engine.targetImageData.setView(view);
-         dialog.refreshUiValues();
-      };
-   }
-
-   this.targetExposureValue = new NumericControl(this);
-   with(this.targetExposureValue)
-   {
-      label.text = "Exposure (s):";
-      label.minWidth = labelWidth1;
-      toolTip = "<p>The exposure in seconds</p>";
-      setRange(0,900);
-      setPrecision(0);
-      edit.setFixedWidth( editWidth1 );
-
-      onValueUpdated = function( value )
-      {
-         engine.targetImageData.exposure = parseFloat(value);
-         dialog.refreshUiValues();
-      };
-   }
-
-   this.targetPedestalValue = new NumericControl(this);
-   with(this.targetPedestalValue)
-   {
-      label.text = "Pedestal:";
-      label.minWidth = labelWidth1;
-      toolTip = "<p>The pedestal added to the values in the image</p>";
-      setRange(-300,300);
-      setPrecision(0);
-      edit.setFixedWidth( editWidth1 );
-
-      onValueUpdated = function( value )
-      {
-         engine.targetImageData.pedestal = parseFloat(value);
-         dialog.refreshUiValues();
-      };
-   }
-
-   this.targetBinningValue = new NumericControl(this);
-   with(this.targetBinningValue)
-   {
-      label.text = "Binning:";
-      label.minWidth = labelWidth1;
-      toolTip = "<p>The binning factor, use a value of '1' for no binning.</p>";
-      setRange(1,4);
-      setPrecision(0);
-      edit.setFixedWidth( editWidth1 );
-
-      onValueUpdated = function( value )
-      {
-         engine.targetImageData.binning = parseFloat(value);
-         dialog.refreshUiValues();
-      };
-   }
-
-   var targetImagePropertiesSizer = new VerticalSizer(this);
-   with(targetImagePropertiesSizer)
-   {
-      spacing = 4;
-      margin = 8;
-      add(this.targetImageList);
-      add(this.targetExposureValue);
-      add(this.targetPedestalValue);
-      add(this.targetBinningValue);
-   }
-
-   var targetImagePropertiesGroup = new GroupBox(this);
-   with(targetImagePropertiesGroup)
-   {
-      title = "Target Image";
-      sizer = targetImagePropertiesSizer;
-   }
-
-
    /////////////
    // Options //
    /////////////
@@ -698,7 +626,7 @@ function CalculateSkyLimitedExposureDialog()
    {
       label.text = "Minimum Target (ADU):";
       label.minWidth = labelWidth1;
-      toolTip = "<p>The minimum ADU value that a target must reach. This should be at least '15'.</p>";
+      toolTip = "<p>The minimum ADU value that a target must reach. This should be at least '15' to ensure enough room for a normal distribution.</p>";
       setRange(0,100);
       setPrecision(0);
       edit.setFixedWidth( editWidth1 );
@@ -758,29 +686,6 @@ function CalculateSkyLimitedExposureDialog()
       add(this.backgroundFluxValue, 100);
    }
 
-   var targetFluxLabel = new Label( this );
-   with(targetFluxLabel)
-   {
-      minWidth = labelWidth2;
-      textAlignment = TextAlign_Right|TextAlign_VertCenter;
-      text = "Target flux:";
-   }
-
-   this.targetFluxValue = new Label( this );
-   with(this.targetFluxValue)
-   {
-      foregroundColor = 0xff0000ff;
-      textAlignment = TextAlign_Left|TextAlign_VertCenter;
-   }
-
-   var targetFluxSizer = new HorizontalSizer( this );
-   with(targetFluxSizer)
-   {
-      spacing = 4;
-      add(targetFluxLabel);
-      add(this.targetFluxValue, 100);
-   }
-
    // Limit value
    //
    var limitedExposureLabel = new Label( this );
@@ -837,7 +742,6 @@ function CalculateSkyLimitedExposureDialog()
       spacing = 4;
       margin = 8;
       add(backgroundFluxSizer);
-      add(targetFluxSizer);
       add(limitedExposureSizer);
       add(ansteySubexposureSizer);
    }
@@ -859,7 +763,6 @@ function CalculateSkyLimitedExposureDialog()
       add(helpLabel);
       add(cameraPropertiesGroup);
       add(backgroundImagePropertiesGroup);
-      add(targetImagePropertiesGroup);
       add(optionGroup);
       add(resultsGroup);
    }
@@ -893,14 +796,6 @@ function CalculateSkyLimitedExposureDialog()
       this.colorizeForErrors(this.backgroundExposureValue.edit, engine.backgroundImageData.exposure > 0);
       this.backgroundBinningValue.setValue(engine.backgroundImageData.binning);
 
-      // Target properties
-      //
-      this.targetPedestalValue.setValue(engine.targetImageData.pedestal);
-      this.targetExposureValue.setValue(engine.targetImageData.exposure);
-      this.colorizeForErrors(this.targetExposureValue.edit, engine.targetImageData.exposure > 0);
-      this.targetBinningValue.setValue(engine.targetImageData.binning);
-
-
       // CCD properties
       //
       this.gainValue.setValue(engine.ccd.gain);
@@ -928,7 +823,6 @@ function CalculateSkyLimitedExposureDialog()
 
       engine.generate();
       this.backgroundFluxValue.text = engine.backgroundFluxString();
-      this.targetFluxValue.text = engine.targetFluxString();
       this.limitedExposureValue.text = engine.limitedExposureString();
       this.ansteySubexposureValue.text = engine.ansteyLimitedExposureString();
    }
