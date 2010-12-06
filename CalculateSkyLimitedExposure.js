@@ -22,7 +22,7 @@
 
 function debugPrint(text)
 {
-   //console.writeln(text);
+   console.writeln(text);
 }
 
 function delquote(str)
@@ -301,18 +301,15 @@ function CalculateOptimalExposureEngine()
       var lpNoiseE = Math.sqrt(this.backgroundFluxE);
       debugPrint("LP Noise:     " + chopPrecision(lpNoiseE,3) + " e-/s  (" + chopPrecision(60 * this.ccd.eToAdu(lpNoiseE),3) + " ADU/m)");
 
-      var ccdNoiseE = this.ccd.totalNoiseE(1);
-      debugPrint("CCD Noise:    " + chopPrecision(ccdNoiseE,3) + " e-/s  (" + chopPrecision(60 * this.ccd.eToAdu(ccdNoiseE),3) + " ADU/m)");
-
-      var totalNoiseE = Math.sqrt(Math.pow(lpNoiseE,2) + Math.pow(ccdNoiseE,2));
-      debugPrint("Total Noise:  " + chopPrecision(totalNoiseE,3) + " e-/s");
-      debugPrint("Total Noise:  " + chopPrecision(60 * this.ccd.eToAdu(totalNoiseE),3) + " ADU/m");
+      var readoutNoiseE = this.ccd.readnoise;
+      debugPrint("Readout Noise:" + chopPrecision(this.ccd.readnoise,3) + " e-  (" + chopPrecision(60 * this.ccd.eToAdu(this.ccd.readnoise),3) + " ADU)");
 
       var minimumTargetE = this.ccd.aduToE(this.minimumTargetAdu);
-      debugPrint("Lamda:       " + minimumTargetE + " e-");
-      debugPrint("Lamda:       " + this.minimumTargetAdu + " ADU");
+      debugPrint("Lamda:       " + minimumTargetE + " e-   (" + this.minimumTargetAdu + " ADU)");
 
-      var result = minimumTargetE * Math.sqrt(this.totalExposure) / (2 * totalNoiseE);
+      // equation (16) from the Anstey paper
+      var a = Math.pow(readoutNoiseE,4) + Math.pow(minimumTargetE,2) * Math.pow(this.backgroundFluxE,2) * this.totalExposure;
+      var result = (-Math.pow(readoutNoiseE,2) + Math.pow(a, 0.5)) / (2 * Math.pow(this.backgroundFluxE,2));
       debugPrint("Exposure:    " + chopPrecision(result,1) + " s");
       debugPrint("");
 
