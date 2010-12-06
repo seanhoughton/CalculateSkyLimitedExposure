@@ -13,7 +13,7 @@
 #feature-icon  CalculateSkyLimitedExposure.xpm
 
 #define TITLE CalculateSkyLimitedExposure
-#define VERSION 2.0
+#define VERSION 2.1
 
 // Sources:
 // Canon camera stats:   http://www.astrosurf.com/buil/50d/test.htm
@@ -22,7 +22,7 @@
 
 function debugPrint(text)
 {
-   console.writeln(text);
+   //console.writeln(text);
 }
 
 function delquote(str)
