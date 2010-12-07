@@ -423,8 +423,8 @@ function CalculateSkyLimitedExposureDialog()
    this.__base__ = Dialog;
    this.__base__();
 
-   var helpLabel = new Label( this );
-   with ( helpLabel )
+   this.helpLabel = new Label( this );
+   with (this.helpLabel )
    {
       frameStyle = FrameStyle_Box;
       margin = 4;
@@ -740,8 +740,8 @@ function CalculateSkyLimitedExposureDialog()
    // Flux value
    //
 
-   var backgroundFluxLabel = new Label( this );
-   with(backgroundFluxLabel)
+   this.backgroundFluxLabel = new Label( this );
+   with(this.backgroundFluxLabel)
    {
       minWidth = labelWidth2;
       textAlignment = TextAlign_Right|TextAlign_VertCenter;
@@ -760,14 +760,14 @@ function CalculateSkyLimitedExposureDialog()
    with(backgroundFluxSizer)
    {
       spacing = 4;
-      add(backgroundFluxLabel);
+      add(this.backgroundFluxLabel);
       add(this.backgroundFluxValue, 100);
    }
 
    // Limit value
    //
-   var limitedExposureLabel = new Label( this );
-   with(limitedExposureLabel)
+   this.limitedExposureLabel = new Label( this );
+   with(this.limitedExposureLabel)
    {
       useRichText = true;
       minWidth = labelWidth2;
@@ -786,14 +786,14 @@ function CalculateSkyLimitedExposureDialog()
    with(limitedExposureSizer)
    {
       spacing = 4;
-      add(limitedExposureLabel);
+      add(this.limitedExposureLabel);
       add(this.limitedExposureValue, 100);
    }
 
    // Limit value II
    //
-   var limitedExposure2Label = new Label( this );
-   with(limitedExposure2Label)
+   this.limitedExposure2Label = new Label( this );
+   with(this.limitedExposure2Label)
    {
       useRichText = true;
       minWidth = labelWidth2;
@@ -812,14 +812,14 @@ function CalculateSkyLimitedExposureDialog()
    with(limitedExposure2Sizer)
    {
       spacing = 4;
-      add(limitedExposure2Label);
+      add(this.limitedExposure2Label);
       add(this.limitedExposure2Value, 100);
    }
 
    // Anstey Model
    //
-   var ansteySubexposureLabel = new Label( this );
-   with(ansteySubexposureLabel)
+   this.ansteySubexposureLabel = new Label( this );
+   with(this.ansteySubexposureLabel)
    {
       minWidth = labelWidth2;
       textAlignment = TextAlign_Right|TextAlign_VertCenter;
@@ -837,7 +837,7 @@ function CalculateSkyLimitedExposureDialog()
    with(ansteySubexposureSizer)
    {
       spacing = 4;
-      add(ansteySubexposureLabel);
+      add(this.ansteySubexposureLabel);
       add(this.ansteySubexposureValue, 100);
    }
 
@@ -866,7 +866,7 @@ function CalculateSkyLimitedExposureDialog()
    {
       spacing = 4;
       margin = 8;
-      add(helpLabel);
+      add(this.helpLabel);
       add(cameraPropertiesGroup);
       add(backgroundImagePropertiesGroup);
       add(optionGroup);
