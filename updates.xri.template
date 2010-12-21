@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xri version="1.0">
+
+  <description>
+     <p>
+        Updates for Sean Houghton's scripts and plugins for PixInsight
+     </p>
+  </description>
+
+   <platform os="all" arch="noarch" version="TEMPLATE_VERSION">
+      <package fileName="TEMPLATE_FILENAME"
+               sha1="TEMPLATE_SHA1"
+               type="documentation"
+               releaseDate="TEMPLATE_RELEASE_DATE">
+         <title>
+            Calculate Sky Limited Exposure script
+         </title>
+         <remove>
+            doc
+         </remove>
+         <description>
+            <p>
+               This update installs an update to the CalculateSkyLimitedExposure script.
+            </p>
+            <p>
+               http://www.cerebiggum.com
+            </p>
+            <p>
+               Copyright (c) 2010 Sean Houghton. All Rights Reserved.
+            </p>
+         </description>
+      </package>
+   </platform>
+
+</xri>

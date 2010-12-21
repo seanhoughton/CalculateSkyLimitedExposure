@@ -315,6 +315,29 @@ function CalculateOptimalExposureEngine()
 
       return result;
    }
+
+   this.drawChart = function(ctrl)
+   {
+      var pixelsPerE = 1.0;
+      var pixelsPerSec = 10;
+
+      var G = new Graphics( ctrl );
+      G.pen = new Pen( 0xFF00FF00 ); //Green
+      for(var x=0; x < 200-1; ++x)
+      {
+         var ta = x * pixelsPerSec;
+         var tb = (x+1) * pixelsPerSec;
+
+         var skyNoiseYa = this.ccd.totalNoiseE(ta) * pixelsPerE;
+         var skyNoiseYb = this.ccd.totalNoiseE(tb) * pixelsPerE;
+         G.drawLine(new Point(x,skyNoiseYa), new Point(x+1,skyNoiseYb));
+
+
+//         G.drawLine(new Point(x,0), new Point(x,10));
+      }
+      G.end();
+      gc();
+   }
 }
 
 var engine = new CalculateOptimalExposureEngine;
@@ -422,7 +445,7 @@ function CalculateSkyLimitedExposureDialog()
 {
    this.__base__ = Dialog;
    this.__base__();
-
+/*
    this.helpLabel = new Label( this );
    with (this.helpLabel )
    {
@@ -438,7 +461,7 @@ function CalculateSkyLimitedExposureDialog()
              "is required before the background noise overcomes the readout noise. In this case it probably makes more sense to use the Anstey model." +
              "<p><b>Usage</b> - Select your camera and provide a background image.  In most cases simply using a preview frame containing only background will be sufficient.</p>";
    }
-
+*/
    // Lengths in pixels of the longest labels, for visual alignment (+ T for security).
    var labelWidth1 = this.font.width( "Readout noise tollerance (%):" + 'T' );
    var labelWidth2 = this.font.width( "Suggested subexposure:" + 'T' );
@@ -737,6 +760,18 @@ function CalculateSkyLimitedExposureDialog()
    // Results //
    /////////////
 
+   // Chart
+   //
+   this.chartControl = new Control( this );
+   with(this.chartControl)
+   {
+      setFixedSize(100,100);
+      onPaint = function()
+      {
+         engine.drawChart(this);
+      }
+   }
+
    // Flux value
    //
 
@@ -846,6 +881,7 @@ function CalculateSkyLimitedExposureDialog()
    {
       spacing = 4;
       margin = 8;
+      add(this.chartControl);
       add(backgroundFluxSizer);
       add(limitedExposureSizer);
       add(limitedExposure2Sizer);
@@ -866,7 +902,7 @@ function CalculateSkyLimitedExposureDialog()
    {
       spacing = 4;
       margin = 8;
-      add(this.helpLabel);
+      //add(this.helpLabel);
       add(cameraPropertiesGroup);
       add(backgroundImagePropertiesGroup);
       add(optionGroup);
