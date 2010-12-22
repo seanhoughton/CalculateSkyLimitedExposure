@@ -762,6 +762,7 @@ function CalculateSkyLimitedExposureDialog()
 
    // Chart
    //
+   /*
    this.chartControl = new Control( this );
    with(this.chartControl)
    {
@@ -771,6 +772,7 @@ function CalculateSkyLimitedExposureDialog()
          engine.drawChart(this);
       }
    }
+   */
 
    // Flux value
    //
@@ -881,7 +883,7 @@ function CalculateSkyLimitedExposureDialog()
    {
       spacing = 4;
       margin = 8;
-      add(this.chartControl);
+      //add(this.chartControl);
       add(backgroundFluxSizer);
       add(limitedExposureSizer);
       add(limitedExposure2Sizer);
