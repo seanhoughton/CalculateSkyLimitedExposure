@@ -10,7 +10,7 @@
    <platform os="all" arch="noarch" version="1.6.9:1.6.9">
       <package fileName="TEMPLATE_FILENAME"
                sha1="TEMPLATE_SHA1"
-               type="documentation"
+               type="script"
                releaseDate="TEMPLATE_RELEASE_DATE">
          <title>
             Calculate Sky Limited Exposure script
