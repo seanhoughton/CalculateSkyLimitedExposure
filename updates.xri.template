@@ -7,7 +7,7 @@
      </p>
   </description>
 
-   <platform os="all" arch="noarch" version="TEMPLATE_VERSION">
+   <platform os="all" arch="noarch" version="1.6.9:1.6.9">
       <package fileName="TEMPLATE_FILENAME"
                sha1="TEMPLATE_SHA1"
                type="documentation"
