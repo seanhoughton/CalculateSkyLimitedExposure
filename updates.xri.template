@@ -15,9 +15,6 @@
          <title>
             Calculate Sky Limited Exposure script
          </title>
-         <remove>
-            doc
-         </remove>
          <description>
             <p>
                This update installs an update to the CalculateSkyLimitedExposure script.
