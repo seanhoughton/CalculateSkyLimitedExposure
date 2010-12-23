@@ -1,12 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<xri version="1.0">
-
-  <description>
-     <p>
-        Updates for Sean Houghton's scripts and plugins for PixInsight
-     </p>
-  </description>
-
    <platform os="all" arch="noarch" version="1.6.9:1.6.9">
       <package fileName="TEMPLATE_FILENAME"
                sha1="TEMPLATE_SHA1"
@@ -28,5 +19,3 @@
          </description>
       </package>
    </platform>
-
-</xri>
