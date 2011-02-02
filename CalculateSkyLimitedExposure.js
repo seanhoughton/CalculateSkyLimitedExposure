@@ -342,7 +342,7 @@ function CalculateOptimalExposureEngine()
 
 var engine = new CalculateOptimalExposureEngine;
 
-
+// Name, Gain, Readout Noise, Dark Current, BPP
 var cameraPresets = new Array(
    new CCD('Custom', 0, 0, 0, 16),
    new CCD('Apogee Alta U16M', 1.5, 10, 0, 16),
@@ -358,6 +358,9 @@ var cameraPresets = new Array(
 	new CCD('Apogee AP10', 3, 15, 0, 16),
 	new CCD('Apogee AP16', 3, 15, 0, 16),
 	new CCD('Apogee AP47', 3, 7, 0, 16),
+
+   new CCD('ATIK 314L+', 0.267, 4, 0, 16),
+   new CCD('ATIK 383L+', 0.353, 7, 0, 16),
 
    new CCD('Canon 350D @ ISO 400', 2.67, 8.0, 0, 12),
    new CCD('Canon 350D @ ISO 800', 1.33, 8.0, 0, 12),
