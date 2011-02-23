@@ -693,7 +693,7 @@ function CalculateSkyLimitedExposureDialog()
    with(this.readoutNoisePctValue)
    {
       label.useRichText = true;
-      label.text = "E<sub>readout</sub> tollerance (%):";
+      label.text = "E<sub>readout</sub> tolerance (%):";
       label.minWidth = labelWidth1;
       toolTip = "<p>The acceptable amount of readout noise relative to sky noise.  The suggested value is 5%.</p>";
       setRange(0,100);
