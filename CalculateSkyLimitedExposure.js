@@ -366,6 +366,8 @@ var cameraPresets = new Array(
    new CCD('Canon 350D @ ISO 800', 1.33, 8.0, 0, 12),
    new CCD('Canon 400D @ ISO 400', 2.74, 7.0, 0, 12),
    new CCD('Canon 400D @ ISO 800', 1.37, 7.0, 0, 12),
+   new CCD('Canon 600D @ ISO 400', 1.7, 4.5, 0, 14),
+   new CCD('Canon 600D @ ISO 800', 1.7, 3.3, 0, 14),
    new CCD('Canon 10D @ ISO 400', 2.41, 14.9, 0, 12),
    new CCD('Canon 10D @ ISO 800', 1.20, 14.9, 0, 12),
    new CCD('Canon 20D @ ISO 400', 3.14, 7.5, 0, 12),
